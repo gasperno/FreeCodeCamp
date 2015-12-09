@@ -78,14 +78,10 @@ window.common = (function(global) {
         var publicURL = $('#public-url').val() || null;
         var githubURL = $('#github-url').val() || null;
         switch (common.challengeType) {
-          case common.challengeTypes.HTML:
-          case common.challengeTypes.JS:
           case common.challengeTypes.VIDEO:
             data = {
-              challengeInfo: {
-                challengeId: common.challengeId,
-                challengeName: common.challengeName
-              }
+              id: common.challengeId,
+              name: common.challengeName
             };
             $.post('/completed-challenge/', data)
               .success(function(res) {
@@ -189,76 +185,6 @@ window.common = (function(global) {
           .replace('/', ''), '_blank');
     });
 
-    $('#gist-share').on('click', function() {
-      var gistWindow = window.open('', '_blank');
-
-      $('#gist-share')
-        .attr('disabled', 'true')
-        .removeClass('btn-danger')
-        .addClass('btn-warning disabled');
-
-      function createCORSRequest(method, url) {
-        var xhr = new XMLHttpRequest();
-        if ('withCredentials' in xhr) {
-          xhr.open(method, url, true);
-        } else if (typeof XDomainRequest !== 'undefined') {
-          xhr = new XDomainRequest();
-          xhr.open(method, url);
-        } else {
-          xhr = null;
-        }
-        xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        return xhr;
-      }
-
-      var request = createCORSRequest('post', 'https://api.github.com/gists');
-      if (!request) {
-        return null;
-      }
-
-      request.onload = function() {
-        if (
-          request.readyState === 4 &&
-          request.status === 201 &&
-          request.statusText === 'Created'
-        ) {
-          gistWindow.location.href =
-            JSON.parse(request.responseText)['html_url'];
-        }
-      };
-
-      var description = common.username ?
-        'http://www.freecodecamp.com/' + common.username + ' \'s s' :
-        'S';
-
-      var data = {
-        description: description + 'olution for ' + common.challengeName,
-        public: true,
-        files: {}
-      };
-      var challengeLink = window.location.href
-        .toString()
-        .split('?')[0]
-        .replace(/(#*)$/, '');
-      var filename = challengeLink
-        .substr(challengeLink.lastIndexOf('challenges/') + 11)
-        .replace('/', '') + '.js';
-
-      data.files[filename] = {
-        content: '// ' +
-          common.challengeName +
-          '\n' +
-          (common.username ? '// Author: @' + common.username + '\n' : '') +
-          '// Challenge: ' +
-          challengeLink +
-          '\n' +
-          '// Learn to Code at Free Code Camp (www.freecodecamp.com)' +
-          '\n\n' +
-          common.editor.getValue().trim()
-      };
-
-      request.send(JSON.stringify(data));
-    });
   });
 
   return common;
