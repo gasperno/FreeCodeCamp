@@ -49,6 +49,15 @@ function makeChallengesUnique(challengeArr) {
   return _.uniq(challengeArr.slice().reverse(), 'id').reverse();
 }
 */
+
+function isChallengeCompleted(user,challengeId){
+  if(!user){
+    return false;
+  }
+  return user.completedChallenges.some(challenge =>
+    challenge.id === challengeId );
+}
+
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
@@ -313,6 +322,9 @@ module.exports = function(app) {
           head: challenge.head,
           tail: challenge.tail,
           tests: challenge.tests,
+
+          //helps in identifying if a challenge is completed or not
+          isCompleted: isChallengeCompleted(req.user,challenge.id),
 
           // video challenges
           video: challenge.challengeSeed[0],
