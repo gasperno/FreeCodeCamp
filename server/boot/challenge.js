@@ -184,6 +184,36 @@ function getRenderData$(user, challenge$, origChallengeName, solution) {
     });
 }
 
+function isLastChallenge(challengeId, completedChallenges, challenge$) {
+  var challengesCount = completedChallenges.length;
+  var challengesInBlock =[];
+  var x = challenge$
+          .filter(challenge => challenge.id === challengeId)
+          .do(x1 => console.log(x1.block))
+          .subscribe( data => {
+            console.log(data.block);
+            challenge$
+            .filter(challenge => challenge.block === data.block)
+            .filter(block => completedChallenges.indexOf(block.id) === -1)
+            .do(e => console.log('unsolved challenges: ',e.title)) //just a debug statement
+            .subscribe(function(ch) {
+              challengesInBlock.push(ch);
+              // console.log('in block ->', a.title, completedChallenges);
+            }, null, null);
+          }, null,
+          function() {
+ //  console.log('completed..', completedChallenges, challengesInBlock);
+  // challengesInBlock = challengesInBlock.filter(id => completedChallenges.indexOf(id.id) === -1);
+            var unsolved = challengesInBlock.length;
+            console.log('number of unsolved challenges..', challengesInBlock.length);
+            if(unsolved > 1){
+              return false;
+            }else{
+              return true; //use this to show share options and alert user that he/she complemeted the challenge.
+            }
+          });
+}
+
 function getCompletedChallengeIds(user = {}) {
   // if user
   // get the id's of all the users completed challenges
